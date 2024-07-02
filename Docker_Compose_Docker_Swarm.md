@@ -47,25 +47,40 @@ root@gb-test1:~/compose# docker compose up -d
 # Проверяем
 
 root@gb-test1:~/compose# docker ps -a
+
 CONTAINER ID   IMAGE                    COMMAND                  CREATED          STATUS                    PORTS                                       NAMES
+
 b2123d294118   adminer:4.8.1            "entrypoint.sh php -…"   40 minutes ago   Up 39 minutes             0.0.0.0:6080->8080/tcp, :::6080->8080/tcp   compose-adminer-1
+
 e34ce20dab62   mariadb:10.10.2          "docker-entrypoint.s…"   40 minutes ago   Up 39 minutes             3306/tcp                                    compose-db-1
+
 f4eb4f40143f   image_for_task4:latest   "python ./task4.py"      5 days ago       Exited (0) 5 days ago                                                 funny_engelbart
+
 92a23be60b01   ubuntu:22.10             "/bin/bash"              5 days ago       Exited (0) 5 days ago                                                 gb-test
+
 5d389821236b   ubuntu:22.10             "bash"                   5 days ago       Exited (127) 5 days ago                                               gracious_benz
+
 09e77c329d00   ubuntu:22.10             "bash"                   5 days ago       Exited (127) 5 days ago                                               dazzling_buck
+
 b196a4319211   mysql                    "docker-entrypoint.s…"   5 days ago       Exited (130) 5 days ago                                               happy_tu
+
 850e46b8182b   mysql                    "docker-entrypoint.s…"   5 days ago       Created                                                               boring_mccarthy
+
 446fe5a5a560   mysql                    "docker-entrypoint.s…"   5 days ago       Exited (130) 5 days ago                                               vigilant_lalande
+
 dcb67e16c779   mysql                    "docker-entrypoint.s…"   5 days ago       Exited (130) 5 days ago                                               awesome_bartik
+
 f75eda6d5115   mysql                    "docker-entrypoint.s…"   5 days ago       Created                                                               silly_blackwell
+
 c62fe5c5a706   hello-world              "/hello"                 3 months ago     Exited (0) 3 months ago                                               pensive_galileo
+
 
 # Подключаемся к adminer  в браузере по адресу http://localhost:6080
 
 # Инициализируем swarm
 
 root@gb-test1:~/compose# docker swarm init
+
 Swarm initialized: current node (jcjydag44eyfamnyvntmdkiot) is now a manager.
 
 To add a worker to this swarm, run the following command:
@@ -77,39 +92,59 @@ To add a manager to this swarm, run 'docker swarm join-token manager' and follow
 # Добавляем вторую ноду на хосте gb-test2
 
 root@gb-test2:~$ docker swarm join --token SWMTKN-1-1z1e48okt5gcw176rka6ffb2r3kszsv14ycwcn0oisqohju3x3-7arvj0n2qnser1pcoo0b43smt 192.168.1.103:2377
+
 [sudo] password for gb-test: 
+
 This node joined a swarm as a worker.
 
 # Добавляем третью ноду на хосте gb-test3
 
 root@gb-test3:~# docker swarm join --token SWMTKN-1-1z1e48okt5gcw176rka6ffb2r3kszsv14ycwcn0oisqohju3x3-7arvj0n2qnser1pcoo0b43smt 192.168.1.103:2377
+
 [sudo] password for gb-test: 
+
 This node joined a swarm as a worker.
 
 # Проверяем наличие нод и их состояние (на хосте мастер-ноды)
 
 root@gb-test1:~/compose# docker node ls
+
 ID                            HOSTNAME   STATUS    AVAILABILITY   MANAGER STATUS   ENGINE VERSION
+
 jcjydag44eyfamnyvntmdkiot *   gb-test      Ready     Active         Leader           24.0.4
+
 latu4gl026bleo789vc6vpyk1     gb-test2     Ready     Active                          24.0.4
+
 pn1c1mwrfleovi5nulkrsclox     gb-test3     Ready     Active                          24.0.4
 
 # Добавляем нодам метки(labels) и проверяем их наличие
 
 root@gb-test1:~/compose# docker node update --label-add env=lab pn1c1mwrfleovi5nulkrsclox
+
 pn1c1mwrfleovi5nulkrsclox
+
 root@gb-test1:~/compose# docker inspect --format='{{json .Spec}}' pn1c1mwrfleovi5nulkrsclox
+
 {"Labels":{"env":"lab"},"Role":"worker","Availability":"active"}
 
+
 root@gb-test1:~/compose# docker node update --label-add env=dev jb5fd4hyolcmmkgjwj1en6w56
+
 jb5fd4hyolcmmkgjwj1en6w56
+
 root@gb-test1:~/compose# docker inspect --format='{{json .Spec}}' jb5fd4hyolcmmkgjwj1en6w56
+
 {"Labels":{"env":"dev"},"Role":"manager","Availability":"active"}
 
+
 root@gb-test1:~/compose# docker node update --label-add env=prod latu4gl026bleo789vc6vpyk1
+
 latu4gl026bleo789vc6vpyk1
+
 root@gb-test1:~/compose# docker inspect --format='{{json .Spec}}' latu4gl026bleo789vc6vpyk1
+
 {"Labels":{"env":"prod"},"Role":"worker","Availability":"active"}
+
 
 # Создаем сервис sql-service на двух контейнерах
 
