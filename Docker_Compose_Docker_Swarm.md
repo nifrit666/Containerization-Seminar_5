@@ -161,6 +161,7 @@ sudo docker service create --name sql-service --replicas 2 -e MYSQL_ROOT_PASSWOR
 overall progress: 2 out of 2 tasks
 
 1/2: running   [==================================================>]
+
 2/2: running   [==================================================>]
 
 verify: Service converged
@@ -212,7 +213,8 @@ lyomxjig6ljaiw32r4wapmkpn
 
 overall progress: 2 out of 2 tasks 
 
-1/2: running   [==================================================>] 
+1/2: running   [==================================================>]
+
 2/2: running   [==================================================>] 
 
 verify: Service converged
