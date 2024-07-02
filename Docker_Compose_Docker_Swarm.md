@@ -149,33 +149,56 @@ root@gb-test1:~/compose# docker inspect --format='{{json .Spec}}' latu4gl026bleo
 # Создаем сервис sql-service на двух контейнерах
 
 root@gb-test1:~/compose#   docker service create --name sql-service --replicas 2 -e MYSQL_ROOT_PASSWORD=12345 mariadb:10.10.2
+
 permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Post "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/services/create": dial unix /var/run/docker.sock: connect: permission denied
+
 root@gb-test1:~/compose#  sudo !!
+
 sudo docker service create --name sql-service --replicas 2 -e MYSQL_ROOT_PASSWORD=tst123 mysql:8.0
+
 9tq1jv2hoyjedv06muhj5zeko
+
 overall progress: 2 out of 2 tasks
+
 1/2: running   [==================================================>]
 2/2: running   [==================================================>]
+
 verify: Service converged
 
 # Проверяем наличие и распределение контейнеров сервиса на всех нодах
 
 root@gb-test1:~/compose# docker ps
+
 CONTAINER ID   IMAGE             COMMAND                  CREATED             STATUS          PORTS                                       NAMES
+
 91752a2de435   mariadb:10.10.2   "docker-entrypoint.s…"   2 minutes ago       Up 2 minutes    3306/tcp                                    sql-service.2.mt9s4evdlfb2d52qxjogdiyac
+
 b2123d294118   adminer:4.8.1     "entrypoint.sh php -…"   About an hour ago   Up 10 minutes   0.0.0.0:6080->8080/tcp, :::6080->8080/tcp   compose-adminer-1
+
 e34ce20dab62   mariadb:10.10.2   "docker-entrypoint.s…"   About an hour ago   Up 10 minutes   3306/tcp                                    compose-db-1
+
 root@gb-test2:~/compose# docker ps
+
 [sudo] password for gb-test: 
+
 CONTAINER ID   IMAGE           COMMAND                  CREATED         STATUS          PORTS                                       NAMES
+
 a36c100bd6ce   mariadb:10.10.2 "docker-entrypoint.s…"   5 minutes ago   Up 5 minutes    3306/tcp                                    sql-service.1.obz5vkb0qbr1btwotml2dhmd4
+
 e7e722624b4c   mariadb:10.10.2 "docker-entrypoint.s…"   2 hours ago     Up 25 minutes   3306/tcp                                    compose-db-1
+
 b485bed9c421   adminer:4.8.1   "entrypoint.sh php -…"   2 hours ago     Up 25 minutes   0.0.0.0:6080->8080/tcp, :::8085->8080/tcp   compose-adminer-1
+
 root@gb-test3:~/compose# docker ps
+
 [sudo] password for gb-test: 
+
 CONTAINER ID   IMAGE           COMMAND                  CREATED       STATUS          PORTS                                       NAMES
+
 e7e722624b4c   mariadb:10.10.2 "docker-entrypoint.s…"   2 hours ago   Up 28 minutes   3306/tcp                                    compose-db-1
+
 b485bed9c421   adminer:4.8.1   "entrypoint.sh php -…"   2 hours ago   Up 28 minutes   0.0.0.0:6080->8080/tcp, :::8085->8080/tcp   compose-adminer-1
+
 
 # Масштабируем сервис в 0 (снимаем нагрузку)
 
@@ -183,23 +206,33 @@ root@gb-test1:~/compose# docker service scale sql-service=0
 
 # Создаем новый сервис из 2-х контейнеров на ноде "prod"
 
-root@gb-test1:~/compose# docker service create --name prod_sql_service --constraint node.labels.env==prod --replicas 2 -e MYSQL_ROOT_PASSWORD=12345 mariadb:10.10.2 
+root@gb-test1:~/compose# docker service create --name prod_sql_service --constraint node.labels.env==prod --replicas 2 -e MYSQL_ROOT_PASSWORD=12345 mariadb:10.10.2
+
 lyomxjig6ljaiw32r4wapmkpn
+
 overall progress: 2 out of 2 tasks 
+
 1/2: running   [==================================================>] 
 2/2: running   [==================================================>] 
+
 verify: Service converged
 
 # Проверяем сервисы
 
 root@gb-test1:~/compose# docker service ls
+
 ID             NAME               MODE         REPLICAS   IMAGE             PORTS
-lyomxjig6lja   prod_sql_service   replicated   2/2        mariadb:10.10.2   
+
+lyomxjig6lja   prod_sql_service   replicated   2/2        mariadb:10.10.2 
+
 9tq1jv2hoyje   sql-service        replicated   0/0        mariadb:10.10.2 
 
-# Проверяем контейнеры на ноде "prod" (хост mssvm2)
+# Проверяем контейнеры на ноде "prod" 
 
 root@gb-test1:~/compose# docker ps 
+
 CONTAINER ID   IMAGE             COMMAND                  CREATED         STATUS         PORTS                 NAMES
+
 6035769196d3   mariadb:10.10.2   "docker-entrypoint.s…"   4 minutes ago   Up 4 minutes   3306/tcp              prod_sql_service.1.nqjpr6mjcjjv36wkbcy4cfu5k
+
 124c74d8a0b5   mariadb:10.10.2   "docker-entrypoint.s…"   4 minutes ago   Up 4 minutes   3306/tcp              prod_sql_service.2.meih5kv70brskmtvjvtg08uxj
